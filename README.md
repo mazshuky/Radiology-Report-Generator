@@ -2,6 +2,9 @@
 A **Clinical Decision Support (CDS)** system for chest X-ray analysis using 
 **deep learning (DenseNet-169), explainability (Grad-CAM), and GPT-5** to generate clinician-friendly and patient-friendly diagnostic reports.
 
+<video src="demo.mp4" width="600" controls>
+</video>
+
 ## Features 
 - Multi-label classification of 14 thoracic diseases + _No Finding_
 - Grad-CAM overlays for visual explanation of model predictions
