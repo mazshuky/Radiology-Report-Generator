@@ -16,8 +16,11 @@ Notes
 -----
 * Set env var OPENAI_API_KEY for GPT-5 calls.
 * This API is for research/education; NOT a medical device. Include disclaimers in outputs.
-* Adjust IMG_MEAN/STD, transforms, thresholds as you validate.
-* Place your dataset images in IMG_ROOT or adapt loader for your storage.
+* Model weights are loaded from `densenet169_chestxray14.pth` in the project root.
+* Dataset images should be placed in the `dataset/images/` directory.
+* Static Grad-CAM overlays are saved to the `static/` directory.
+* Adjust image transforms and thresholds as you validate.
+* For frontend, see `frontend/cds-frontend/`.
 """
 
 import os
@@ -42,15 +45,11 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-# Config (move this above app.mount)
+
+# === Static ===
 STATIC_DIR = os.getenv("STATIC_DIR", "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
 
-
-
-# -----------------------------
-# Config
-# -----------------------------
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 CLASSES: List[str] = [
     'Atelectasis', 'Cardiomegaly', 'Consolidation', 'Edema', 'Effusion',
@@ -63,9 +62,8 @@ MODEL_WEIGHTS = os.getenv("DENSENET169_WEIGHTS", "densenet169_chestxray14.pth")
 STATIC_DIR = os.getenv("STATIC_DIR", "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
 
-# -----------------------------
-# Image transforms
-# -----------------------------
+#
+# === Image transforms ===
 INFER_TF = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -73,9 +71,8 @@ INFER_TF = transforms.Compose([
 ])
 
 
-# -----------------------------
-# Model
-# -----------------------------
+
+# === Model ===
 
 def build_model() -> nn.Module:
     model = models.densenet169(weights='DEFAULT')
@@ -116,9 +113,8 @@ if isinstance(model, DenseNet):
 model.eval()
 
 
-# -----------------------------
-# Grad-CAM
-# -----------------------------
+
+# === Grad-CAM ===
 class GradCAM:
     def __init__(self, model: nn.Module, target_layer: nn.Module):
         self.model = model
@@ -188,9 +184,8 @@ class GradCAM:
 cam = GradCAM(model, model.features)
 
 
-# -----------------------------
-# Pydantic Schemas
-# -----------------------------
+
+# === Pydantic Schemas ===
 class PatientMeta(BaseModel):
     age: Optional[int] = None
     sex: Optional[str] = None  # "Male" | "Female" | "Other" | None
@@ -217,9 +212,8 @@ class ReportResponse(BaseModel):
     disclaimer: str
 
 
-# -----------------------------
-# FastAPI app
-# -----------------------------
+
+# === FastAPI app ===
 app = FastAPI(title="Radiology CDS API", version="1.0.0")
 
 # Add CORS middleware
@@ -257,9 +251,8 @@ def save_overlay(pil_img: Image.Image, heat: np.ndarray, out_path: str):
     overlay = (0.35 * heatmap + 0.65 * orig).astype(np.uint8)
     Image.fromarray(overlay).save(out_path)
 
-# -----------------------------
-# /predict
-# -----------------------------
+
+# === /predict ===
 @app.post("/predict", response_model=PredictResponse)
 async def predict(file: UploadFile = File(...), topk: int = 3):
     # Load image
@@ -307,9 +300,8 @@ async def predict(file: UploadFile = File(...), topk: int = 3):
     )
 
 
-# -----------------------------
-# /report (GPT-5)
-# -----------------------------
+
+# === /report (GPT-5) ===
 from openai import OpenAI
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -364,7 +356,7 @@ async def report(req: ReportRequest):
 
     try:
         resp = client.chat.completions.create(
-            model="gpt-5",  # Changed from "gpt-5" as it doesn't exist yet
+            model="gpt-5",
             temperature=0.2,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -382,9 +374,8 @@ async def report(req: ReportRequest):
     return ReportResponse(report=text, disclaimer=DISCLAIMER)
 
 
-# -----------------------------
-# /predict_and_report
-# -----------------------------
+
+# === /predict_and_report ===
 @app.post("/predict_and_report")
 async def predict_and_report(
         file: UploadFile = File(...),
@@ -417,8 +408,7 @@ async def predict_and_report(
     })
 
 
-# -----------------------------
+
 # Local dev entrypoint
-# -----------------------------
 if __name__ == "__main__":
     uvicorn.run("radiology_cds_api:app", host="0.0.0.0", port=8000, reload=True)
