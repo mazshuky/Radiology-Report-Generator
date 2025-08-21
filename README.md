@@ -41,15 +41,9 @@ A **Clinical Decision Support (CDS)** system for chest X-ray analysis using
 ```
 
 ## Model Performance (DenseNet-169)
-
-### Disease Distribution in Test Set
-![Distribution of Diseases in Test Set](assets/class_distribution.png)
-
-### ROC Curves (AUC per Class)
-![ROC Curves - ChestX-ray14 Classification](assets/roc_curves.png)
-
-### Confusion Matrices (Selected Classes)
-![Confusion Matrices](assets/confusion_matrices.png)
+| Disease Distribution in Test Set                       | ROC Curves (AUC per Class)                                                     | Confusion Matrices                                                                       |
+|--------------------------------------------------------|--------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| <img src="assets/class_distribution.png" width="250"/> | <img src="assets/roc_curves.png" width="250"/> | <img src="assets/confusion_matrices.png" width="250"/> |
 
 ## Setup 
 1. Install Python depende
