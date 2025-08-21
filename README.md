@@ -46,7 +46,7 @@ A **Clinical Decision Support (CDS)** system for chest X-ray analysis using
 | <img src="assets/class_distribution.png" width="250"/> | <img src="assets/roc_curves.png" width="250"/> | <img src="assets/confusion_matrices.png" width="250"/> |
 
 ## Setup 
-1. Install Python depende
+1. Install Python dependencies
    ```bash
    pip install -r requirements.txt
    ```
