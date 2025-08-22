@@ -5,6 +5,8 @@ A **Clinical Decision Support (CDS)** system for chest X-ray analysis using
 <video src="https://github.com/mazshuky/Radiology-Report-Generator/blob/main/demo.mp4" width="600" controls>
 </video>
 
+![Demo](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcmd2OTM0aGx6a2lzZmF1bDgzcW1nbmxkbzloOWR6YXRlc250cHdhYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XIvTNzi129HupnJV72/giphy.gif)
+
 ## Features 
 - Multi-label classification of 14 thoracic diseases + _No Finding_
 - Grad-CAM overlays for visual explanation of model predictions
